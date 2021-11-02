@@ -1,0 +1,166 @@
+import pytesseract
+from pytesseract import Output
+from PIL import Image, ImageEnhance, ImageFilter
+import cv2
+import numpy as np
+from tkinter import *
+import tkinter.filedialog as fd
+import os
+
+app = Tk()
+
+
+def choose_file():
+    filetypes = (("Изображение", "*.jpg *.gif *.png"), ("Любой", "*"))
+    filename = fd.askopenfilename(title="Открыть файл", initialdir="/", filetypes=filetypes)
+    if filename:
+        lbl1 = Label(app, text=filename)
+        lbl1.pack(padx=60, pady=10)
+        return filename
+
+
+a = 'r' + choose_file()
+name = os.path.basename(a)
+print(name)
+img = cv2.imread(r'C:/Users/VAVya/PycharmProjects/geometry_solver/' + name)
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\USER\AppData\Local\Tesseract-OCR\tesseract.exe'
+
+s = pytesseract.image_to_string(img, lang='eng', config='--psm 6')
+art = list(s)
+lbl2 = Label(app, text=s)
+
+
+'''
+d = pytesseract.image_to_data(img, output_type=Output.DICT,lang = 'eng',config='--psm 6')
+n_boxes = len(d['level'])
+for i in range(n_boxes):
+    (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
+    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    #print(x,y,x+w, y+h)
+'''
+
+
+def find_rect(img):
+    hsv_min = np.array((0, 54, 5), np.uint8)
+    hsv_max = np.array((187, 255, 253), np.uint8)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    thresh = cv2.inRange(hsv, hsv_min, hsv_max)
+    cnts, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    for cnt in cnts:
+        if len(cnt) > 4:
+            ellipse = cv2.fitEllipse(cnt)
+            # cv2.ellipse(img,ellipse,(0,0,255),2)
+        rect = cv2.minAreaRect(cnt)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        area = int(rect[1][0] * rect[1][1])
+        if area > 15500:
+            cv2.drawContours(img, [cnt], 0, (255, 0, 0), 2)
+
+
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+# apply simple thresholding with a hardcoded threshold value
+thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 21, 10)
+
+contours, h = cv2.findContours(thresh, 1, 2)
+
+
+# print(len(contours))
+
+
+def mindistance(contour, contourother):
+    distancemin = 99999999
+    for xA, yA in contour[0]:
+        for xB, yB in contourother[0]:
+            distance = ((xB - xA) ** 2 + (yB - yA) ** 2) ** (1 / 2)  # distance formula
+            if (distance < distancemin):
+                distancemin = distance
+    return distancemin
+
+
+dis = mindistance(contours[0], contours[1])
+
+if dis >= 11:
+    tr = 0
+    hs = 0
+    ci = 0
+    sq = 0
+    rect = 0
+else:
+    tr = -1
+    hs = 0
+    ci = 0
+    sq = -1
+    rect = -1
+arr = {"triangle": tr, "half-circle": hs, "circle": ci, "square": sq, "rects": rect}
+
+for cnt in contours:
+    rect = cv2.minAreaRect(cnt)
+    area = int(rect[1][0] * rect[1][1])
+    # value = 0.01*cv2.arcLength(cnt,True)
+    # approx = cv2.approxPolyDP(cnt,value,True)
+    epsilon = 0.01 * cv2.arcLength(cnt, True)
+    approx = cv2.approxPolyDP(cnt, epsilon, True)
+    # print(len(approx))
+    if (area > 5000):
+        # if len(approx)==5:
+        # cv2.drawContours(img,[cnt],0,255,2)
+        if len(approx) == 3:
+            cv2.drawContours(img, [cnt], 0, (0, 255, 0), 2)
+            arr["triangle"] += 1
+        elif len(approx) == 9:
+            cv2.drawContours(img, [cnt], 0, (255, 255, 0), 2)
+            arr["half-circle"] += 1
+        elif len(approx) > 15:
+            cv2.drawContours(img, [cnt], 0, (0, 255, 255), 2)
+            arr["circle"] += 1
+        else:
+            if area > 15500:
+                cv2.drawContours(img, [cnt], 0, (255, 0, 0), 2)
+                arr["rects"] += 1
+    if len(approx) == 4 and area > 1000:
+        cv2.drawContours(img, [cnt], 0, (0, 0, 255), 2)
+        arr["square"] += 1
+'''
+find_rect(img)
+'''
+
+s = str(art)
+s1 = s.replace("'", '')
+s2 = s1.replace(",", "")
+s3 = s2.replace("[", '')
+s4 = s3.replace("]", '')
+dig = []
+l = len(s4)
+i = 0
+while i < l:
+    s_int = ''
+    a = s4[i]
+    while '0' <= a <= '9':
+        s_int += a
+        i += 1
+        if i < l:
+            a = s4[i]
+        else:
+            break
+    i += 1
+    if s_int != '':
+        dig.append(int(s_int))
+print(dig)
+lbl3 = Label(app, text=dig)
+btn_file = Button(app, text="Выбрать файл", command=choose_file)
+lbl = Label(app, text="Выберите файл:")
+lbl.pack(padx=60, pady=10)
+btn_file.pack(padx=60, pady=10)
+lbl2.pack(padx=60, pady=10)
+lbl3.pack(padx=60, pady=10)
+# lbl5.pack(padx=60, pady=10)
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+app.mainloop()
+
+# cv2.imshow('img', thresh)
