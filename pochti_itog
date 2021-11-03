@@ -10,7 +10,7 @@ from math import *
 
 
 app = Tk()
-
+app.geometry('900x500')
 
 def choose_file():
     filetypes = (("Изображение", "*.jpg *.gif *.png"), ("Любой", "*"))
@@ -32,9 +32,6 @@ img = cv2.imread(r'C:/Users/VAVya/PycharmProjects/geometry_solver/' + name)
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\USER\AppData\Local\Tesseract-OCR\tesseract.exe'
 
-s = pytesseract.image_to_string(img, lang='eng', config='--psm 6')
-art = list(s)
-lbl2 = Label(app, text=s)
 
 
 '''
@@ -71,6 +68,11 @@ blurred = cv2.GaussianBlur(gray, (7, 7), 0)
 # apply simple thresholding with a hardcoded threshold value
 thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 21, 10)
 
+s = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+art = list(s)
+lbl2 = Label(app, text=s)
+# print(art)
+
 contours, h = cv2.findContours(thresh, 1, 2)
 
 
@@ -89,7 +91,7 @@ def mindistance(contour, contourother):
 
 dis = mindistance(contours[0], contours[1])
 
-if dis >= 11:
+if dis >= 15:
     tr = 0
     hs = 0
     ci = 0
@@ -121,7 +123,7 @@ for cnt in contours:
             cv2.drawContours(img, [cnt], 0, (255, 255, 0), 2)
             arr["half-circle"] += 1
         elif len(approx) > 15:
-            cv2.drawContours(img, [cnt], 0, (0, 255, 255), 2)
+            # cv2.drawContours(img, [cnt], 0, (0, 255, 255), 2)
             arr["circle"] += 1
         else:
             if area > 15500:
@@ -157,13 +159,16 @@ while i < l:
     i += 1
     if s_int != '':
         dig.append(int(s_int))
+
+# print(dig)
 lbl3 = Label(app, text=dig)
 gerr = (int(dig[0]) + int(dig[1]) + int(dig[2])) / 2
-if arr['triangle'] == 1 and "S" in s5:
+# print(arr['triangle'])
+if arr['triangle'] >= 1 and "S" in s5:
     pl = sqrt(gerr * (gerr-int(dig[0])) * (gerr-int(dig[1])) * (gerr-int(dig[2])))
-    ans = 'Area = ' + str(pl)
+    ans = 'Area = ' + str(int(pl))
     sol = 'Воспользуйтесь формулой Герона: sqrt(' + str(gerr) + '*(' + str(gerr) + '-' + str(dig[0]) + ')*(' + str(gerr) + '-' + str(dig[1]) + ')*(' + str(gerr) + '-' + str(dig[2]) + '))'
-    lbl5 = Label(app, text=ans)
+    lbl5 = Label(app, text=ans, font='Arial 50', fg='red')
     lbl6 = Label(app, text=sol)
 
 
@@ -175,9 +180,7 @@ lbl3.pack(padx=60, pady=10)
 lbl5.pack(padx=60, pady=10)
 lbl6.pack(padx=60, pady=10)
 cv2.imshow('img', img)
-# cv2.imshow('img', thresh)
+#cv2.imshow('img', thresh)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 app.mainloop()
-
-
