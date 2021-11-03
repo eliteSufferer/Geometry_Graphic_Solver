@@ -1,5 +1,5 @@
 Чтобы pytesseract работал корректно, необходимо скачать exe
-файл и при установке выбрать директорию 
+файл по ссылке в файле Links и при установке выбрать директорию 
 C:\Users\USER\AppData\Local\
 Итоговый путь к исполняемому файлу должен выглядеть так:
 C:\Users\USER\AppData\Local\Tesseract-OCR\tesseract.exe
