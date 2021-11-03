@@ -6,6 +6,8 @@ import numpy as np
 from tkinter import *
 import tkinter.filedialog as fd
 import os
+from math import *
+
 
 app = Tk()
 
@@ -19,9 +21,13 @@ def choose_file():
         return filename
 
 
+lbl = Label(app, text="Выберите файл:")
+lbl.pack(padx=60, pady=10)
+btn_file = Button(app, text="Выбрать файл", command=choose_file)
+btn_file.pack(padx=60, pady=10)
 a = 'r' + choose_file()
 name = os.path.basename(a)
-print(name)
+# print(name)
 img = cv2.imread(r'C:/Users/VAVya/PycharmProjects/geometry_solver/' + name)
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\USER\AppData\Local\Tesseract-OCR\tesseract.exe'
@@ -133,34 +139,45 @@ s1 = s.replace("'", '')
 s2 = s1.replace(",", "")
 s3 = s2.replace("[", '')
 s4 = s3.replace("]", '')
+s5 = s4.replace(' ', '')
+# print(s5)
 dig = []
-l = len(s4)
+l = len(s5)
 i = 0
 while i < l:
     s_int = ''
-    a = s4[i]
+    a = s5[i]
     while '0' <= a <= '9':
         s_int += a
         i += 1
         if i < l:
-            a = s4[i]
+            a = s5[i]
         else:
             break
     i += 1
     if s_int != '':
         dig.append(int(s_int))
-print(dig)
 lbl3 = Label(app, text=dig)
-btn_file = Button(app, text="Выбрать файл", command=choose_file)
-lbl = Label(app, text="Выберите файл:")
-lbl.pack(padx=60, pady=10)
-btn_file.pack(padx=60, pady=10)
+gerr = (int(dig[0]) + int(dig[1]) + int(dig[2])) / 2
+if arr['triangle'] == 1 and "S" in s5:
+    pl = sqrt(gerr * (gerr-int(dig[0])) * (gerr-int(dig[1])) * (gerr-int(dig[2])))
+    ans = 'Area = ' + str(pl)
+    sol = 'Воспользуйтесь формулой Герона: sqrt(' + str(gerr) + '*(' + str(gerr) + '-' + str(dig[0]) + ')*(' + str(gerr) + '-' + str(dig[1]) + ')*(' + str(gerr) + '-' + str(dig[2]) + '))'
+    lbl5 = Label(app, text=ans)
+    lbl6 = Label(app, text=sol)
+
+
+# btn_file = Button(app, text="Выбрать файл", command=choose_file)
+
+
 lbl2.pack(padx=60, pady=10)
 lbl3.pack(padx=60, pady=10)
-# lbl5.pack(padx=60, pady=10)
+lbl5.pack(padx=60, pady=10)
+lbl6.pack(padx=60, pady=10)
 cv2.imshow('img', img)
+# cv2.imshow('img', thresh)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 app.mainloop()
 
-# cv2.imshow('img', thresh)
+
