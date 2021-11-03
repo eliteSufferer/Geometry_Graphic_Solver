@@ -10,7 +10,8 @@ from math import *
 
 
 app = Tk()
-app.geometry('900x500')
+app.geometry('900x700')
+
 
 def choose_file():
     filetypes = (("Изображение", "*.jpg *.gif *.png"), ("Любой", "*"))
@@ -70,7 +71,7 @@ thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THR
 
 s = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
 art = list(s)
-lbl2 = Label(app, text=s)
+lbl2 = Label(app, text=s, font='Arial 15')
 # print(art)
 
 contours, h = cv2.findContours(thresh, 1, 2)
@@ -83,7 +84,7 @@ def mindistance(contour, contourother):
     distancemin = 99999999
     for xA, yA in contour[0]:
         for xB, yB in contourother[0]:
-            distance = ((xB - xA) ** 2 + (yB - yA) ** 2) ** (1 / 2)  # distance formula
+            distance = ((xB - xA) ** 2 + (yB - yA) ** 2) ** (1 / 2) 
             if (distance < distancemin):
                 distancemin = distance
     return distancemin
@@ -169,7 +170,7 @@ if arr['triangle'] >= 1 and "S" in s5:
     ans = 'Area = ' + str(int(pl))
     sol = 'Воспользуйтесь формулой Герона: sqrt(' + str(gerr) + '*(' + str(gerr) + '-' + str(dig[0]) + ')*(' + str(gerr) + '-' + str(dig[1]) + ')*(' + str(gerr) + '-' + str(dig[2]) + '))'
     lbl5 = Label(app, text=ans, font='Arial 50', fg='red')
-    lbl6 = Label(app, text=sol)
+    lbl6 = Label(app, text=sol, font='Arial 15')
 
 
 # btn_file = Button(app, text="Выбрать файл", command=choose_file)
@@ -184,3 +185,4 @@ cv2.imshow('img', img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 app.mainloop()
+
