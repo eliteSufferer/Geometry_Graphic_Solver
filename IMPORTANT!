@@ -3,3 +3,6 @@
 C:\Users\USER\AppData\Local\
 Итоговый путь к исполняемому файлу должен выглядеть так:
 C:\Users\USER\AppData\Local\Tesseract-OCR\tesseract.exe
+
+Обязательное условие: папка проекта в Pycharmprojects должна называться 
+geometry_solver
